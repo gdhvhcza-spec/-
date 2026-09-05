@@ -2,43 +2,342 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدرستي الذكية | Smart School v2.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مدرستي الذكية | المنهاج الفلسطيني</title>
+    <!-- الخطوط -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- الرسوم البيانية -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --p: #6366f1; --a: #f59e0b; --bg: #f8fafc; --c: #ffffff;
-            --t: #1e293b; --d: #ef4444; --s: #10b981; --glass: rgba(255, 255, 255, 0.9);
+            --t: #1e293b; --d: #ef4444; --s: #10b981; --glass: rgba(255, 255, 255, 0.95);
         }
         [data-theme="dark"] {
-            --bg: #0f172a; --c: #1e293b; --t: #f1f5f9; --glass: rgba(15, 23, 42, 0.9);
+            --bg: #0f172a; --c: #1e293b; --t: #f1f5f9; --glass: rgba(15, 23, 42, 0.95);
         }
-        * { box-sizing: border-box; transition: 0.3s; font-family: 'Tajawal', sans-serif; }
-        body { background: var(--bg); color: var(--t); margin: 0; padding: 0; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--t); margin: 0; padding: 0; transition: 0.3s; overflow-x: hidden; }
 
-        /* Sidebar Navigation */
-        .menu-toggle { position: fixed; top: 20px; right: 20px; z-index: 3000; background: var(--p); color: white; padding: 10px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .sidebar { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--c); z-index: 2500; padding: 30px 15px; box-shadow: -5px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
+        /* القائمة الجانبية المحدثة - لتعمل فوراً */
+        .sidebar { 
+            position: fixed; top: 0; right: -100%; width: 280px; height: 100%; 
+            background: var(--c); z-index: 9999; padding: 40px 20px; 
+            box-shadow: -10px 0 30px rgba(0,0,0,0.2); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         .sidebar.active { right: 0; }
-        .sidebar-item { padding: 12px 15px; margin: 8px 0; border-radius: 12px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; }
+        
+        .menu-btn { 
+            position: fixed; top: 15px; right: 15px; z-index: 10000; 
+            background: var(--p); color: white; width: 50px; height: 50px; 
+            border-radius: 15px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 24px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            border: none; outline: none;
+        }
+
+        .sidebar-item { 
+            padding: 15px; margin: 10px 0; border-radius: 12px; cursor: pointer; 
+            display: flex; align-items: center; gap: 12px; font-weight: bold; border: 1px solid transparent;
+        }
         .sidebar-item:hover { background: var(--bg); border-color: var(--p); }
         .sidebar-item.active { background: var(--p); color: white; }
 
-        /* Main Container */
+        /* المحتوى الرئيسي */
         .container { max-width: 800px; margin: 80px auto 20px; padding: 0 20px; }
         .section { display: none; }
-        .section.active { display: block; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Cards & UI */
-        .card { background: var(--c); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); border-right: 6px solid var(--p); }
-        .btn { border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        /* التصميم المميز (Cards) */
+        .card { 
+            background: var(--c); border-radius: 24px; padding: 25px; margin-bottom: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03); border-right: 8px solid var(--p); 
+        }
+        .btn { 
+            border: none; padding: 15px; border-radius: 15px; cursor: pointer; 
+            font-weight: 700; width: 100%; display: flex; align-items: center; 
+            justify-content: center; gap: 10px; font-size: 15px; transition: 0.2s;
+        }
         .btn-p { background: var(--p); color: white; }
         .btn-a { background: var(--a); color: white; }
         .btn-d { background: var(--d); color: white; }
 
-        /* Books Grid */
+        /* الكتب التسعة */
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
-        .book { background: var(--c); padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; }
-        .book:hover { border-c
+        .book-card { 
+            background: var(--c); padding: 20px; border-radius: 20px; text-align: center; 
+            border: 1px solid #eee; cursor: pointer; transition: 0.3s;
+        }
+        .book-card:hover { transform: translateY(-8px); border-color: var(--p); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .book-card i { font-size: 35px; display: block; margin-bottom: 10px; }
+
+        /* محادثة المعلم الذكي */
+        .chat-box { 
+            height: 350px; overflow-y: auto; background: rgba(0,0,0,0.02); 
+            border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; flex-direction: column; 
+        }
+        .msg { padding: 12px 18px; border-radius: 18px; margin-bottom: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; }
+        .msg.bot { background: white; border-right: 4px solid var(--p); align-self: flex-start; }
+        .msg.user { background: var(--p); color: white; align-self: flex-end; }
+
+        /* الحماية والخصوصية */
+        .hidden { display: none; }
+        input, select, textarea { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; background: var(--c); color: var(--t); outline: none; }
+        
+        /* التعتيم عند فتح القائمة */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 9998; }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- الثلاث شرطات (المنيو) -->
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Open Menu">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <!-- القائمة الجانبية -->
+    <nav class="sidebar" id="sidebar">
+        <h2 style="color: var(--p); margin-bottom: 30px;">مدرستي الذكية 🇵🇸</h2>
+        <div class="sidebar-item active" onclick="show('home', this)">🏠 الرئيسية</div>
+        <div class="sidebar-item" onclick="show('books', this)">📚 الكتب والمنهاج</div>
+        <div class="sidebar-item" onclick="show('tasks', this)">📅 المهام والامتحانات</div>
+        <div class="sidebar-item" onclick="show('ai', this)">🤖 المعلم السقراطي</div>
+        <div class="sidebar-item" onclick="show('brain', this)">🧠 عقل الطالب (الإتقان)</div>
+        <div class="sidebar-item" onclick="show('focus', this)">⏱️ وضع التركيز</div>
+        <div class="sidebar-item" onclick="show('projects', this)">🤝 المشاريع والتعاون</div>
+        <div class="sidebar-item" onclick="show('teacher', this)">🔐 بوابة المعلم</div>
+        <div class="sidebar-item" onclick="show('settings', this)">⚙️ الإعدادات</div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- الرئيسية -->
+        <div id="home" class="section active">
+            <div class="card" style="border:none; background: var(--p); color:white;">
+                <h2 id="greeting">مرحباً يا بطل!</h2>
+                <p id="smart-tip">جاري تحليل مستواك الحالي...</p>
+                <div id="emergency-mode" class="hidden" style="background:rgba(255,255,255,0.2); padding:10px; border-radius:10px; margin-top:10px;">
+                    🚨 <b>وضع الطوارئ:</b> امتحانك غداً! هل نركز على أهم المفاهيم؟
+                </div>
+            </div>
+            <h3>المهمة المقترحة الآن:</h3>
+            <div id="home-tasks"></div>
+            <button class="btn btn-a" onclick="show('ai')">🤖 ابدأ جلسة دراسة مع AI</button>
+        </div>
+
+        <!-- الكتب (الكتب التسعة الحقيقية) -->
+        <div id="books" class="section">
+            <h3>📚 الكتب المدرسية (الصف التاسع)</h3>
+            <div class="books-grid">
+                <div class="book-card" onclick="openBook('الرياضيات')"><i>📐</i>الرياضيات</div>
+                <div class="book-card" onclick="openBook('العلوم والحياة')"><i>🔬</i>العلوم</div>
+                <div class="book-card" onclick="openBook('اللغة العربية')"><i>📖</i>العربية</div>
+                <div class="book-card" onclick="openBook('اللغة الإنجليزية')"><i>🇬🇧</i>English</div>
+                <div class="book-card" onclick="openBook('الدراسات الاجتماعية')"><i>🌍</i>الاجتماعيات</div>
+                <div class="book-card" onclick="openBook('البرمجة')"><i>💻</i>البرمجة</div>
+                <div class="book-card" onclick="openBook('التربية الإسلامية')"><i>🕌</i>الإسلامية</div>
+                <div class="book-card" onclick="openBook('التربية التكنولوجية')"><i>⚙️</i>التكنولوجيا</div>
+                <div class="book-card" onclick="openBook('التلاوة والتجويد')"><i>📜</i>التجويد</div>
+            </div>
+        </div>
+
+        <!-- المهام -->
+        <div id="tasks" class="section">
+            <h3>📅 قائمة المهام والامتحانات</h3>
+            <div id="task-list"></div>
+            <div class="card" style="border-right-color: var(--s);">
+                <h4>إضافة مهمة ذاتية</h4>
+                <input type="text" id="t-title" placeholder="عنوان المهمة (مثلاً: حل صفحة 10)">
+                <input type="date" id="t-date">
+                <button class="btn btn-p" onclick="addCustomTask()">إضافة للجدول</button>
+            </div>
+        </div>
+
+        <!-- المعلم السقراطي -->
+        <div id="ai" class="section">
+            <h3>🤖 المعلم الذكي الشخصي</h3>
+            <div class="chat-box" id="chat-box">
+                <div class="msg bot">أهلاً بك. أنا معلمك الخاص للصف التاسع. ماذا تريد أن نفهم اليوم؟</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="ai-in" placeholder="اسأل عن درس، سؤال، أو اطلب تلخيصاً...">
+                <button class="btn btn-p" style="width:auto;" onclick="askAI()">إرسال</button>
+            </div>
+        </div>
+
+        <!-- عقل الطالب -->
+        <div id="brain" class="section">
+            <h3>🧠 خريطة الإتقان (Mastery)</h3>
+            <div class="card">
+                <canvas id="masteryChart" height="250"></canvas>
+            </div>
+            <div class="card" style="border-right-color: var(--d);">
+                <h4>⚠️ بنك الأخطاء المتكررة</h4>
+                <div id="error-bank" style="font-size: 14px;">لا توجد أخطاء حالياً. أنت متفوق!</div>
+            </div>
+        </div>
+
+        <!-- وضع التركيز -->
+        <div id="focus" class="section">
+            <h3>⏱️ وضع التركيز العميق</h3>
+            <div class="card" style="text-align:center;">
+                <h1 id="timer" style="font-size:60px; margin:20px 0;">25:00</h1>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-p" onclick="toggleTimer()">ابدأ/توقف</button>
+                    <button class="btn btn-d" onclick="resetTimer()">إعادة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- بوابة المعلم -->
+        <div id="teacher" class="section">
+            <h3>🔐 بوابة المعلم والمدرسة</h3>
+            <div id="teacher-lock">
+                <input type="password" id="pass" placeholder="أدخل رمز الدخول">
+                <button class="btn btn-p" onclick="checkPass()">دخول</button>
+            </div>
+            <div id="teacher-panel" class="hidden">
+                <div class="card"><h4>إضافة محتوى مدرسي</h4><button class="btn btn-a">نشر واجب عام</button></div>
+            </div>
+        </div>
+
+        <!-- الإعدادات -->
+        <div id="settings" class="section">
+            <h3>⚙️ الإعدادات</h3>
+            <div class="card">
+                <label>اللغة (Language)</label>
+                <select onchange="changeLang(this.value)">
+                    <option value="ar">العربية</option>
+                    <option value="en">English</option>
+                </select>
+                <label>الوضع (Theme)</label>
+                <select onchange="changeTheme(this.value)">
+                    <option value="light">نهاري (Light)</option>
+                    <option value="dark">ليلي (Dark)</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // الرمز الذي طلبته
+        const TEACHER_CODE = "430397158";
+        
+        // حالة التطبيق
+        let state = JSON.parse(localStorage.getItem('ss_state')) || {
+            tasks: [{title: "حل ص 47 رياضيات", date: "2026-09-06", subject: "الرياضيات"}],
+            mastery: {"الرياضيات": 80, "العلوم": 60, "العربية": 90, "English": 50, "البرمجة": 70},
+            errors: []
+        };
+
+        // وظيفة المنيو (الثلاث شرطات) - تم التأكد من عملها
+        function toggleMenu() {
+            const side = document.getElementById('sidebar');
+            const over = document.getElementById('overlay');
+            side.classList.toggle('active');
+            over.classList.toggle('active');
+        }
+
+        // التنقل بين الأقسام
+        function show(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            toggleMenu(); // إغلاق القائمة بعد الاختيار
+            if(id === 'brain') updateChart();
+            render();
+        }
+
+        // محرك المعلم السقراطي
+        function askAI() {
+            const inpt = document.getElementById('ai-in');
+            const chat = document.getElementById('chat-box');
+            if(!inpt.value) return;
+            chat.innerHTML += `<div class="msg user">${inpt.value}</div>`;
+            const q = inpt.value;
+            inpt.value = "";
+            setTimeout(() => {
+                let r = "بناءً على منهاج فلسطين، هذا المفهوم مهم جداً. قبل أن أعطيك الحل، ماذا تعتقد أن تكون الخطوة الأولى؟";
+                if(q.includes("رياضيات")) r = "في درس الرياضيات ص 47، القانون يعتمد على التربيع. جرب كتابته هنا.";
+                chat.innerHTML += `<div class="msg bot">${r}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 1000);
+        }
+
+        // تحديث الواجهة
+        function render() {
+            const now = new Date();
+            document.getElementById('greeting').innerText = now.getHours() < 12 ? "صباح الخير يا بطل! 🇵🇸" : "مساء الخير، لنبدأ الدراسة! 🇵🇸";
+            
+            const taskDiv = document.getElementById('home-tasks');
+            const activeTasks = state.tasks.filter(t => new Date(t.date) >= now.setHours(0,0,0,0));
+            taskDiv.innerHTML = activeTasks.map(t => `<div class="card" style="padding:10px; margin-bottom:10px; font-size:13px;"><b>${t.subject}:</b> ${t.title}</div>`).join('');
+            
+            document.getElementById('task-list').innerHTML = activeTasks.map(t => `<div class="card"><b>${t.subject}:</b> ${t.title} <br><small>الموعد: ${t.date}</small></div>`).join('');
+            
+            document.getElementById('smart-tip').innerText = activeTasks.length > 0 ? `لديك ${activeTasks.length} مهام متبقية. ابدأ الآن!` : "جدولك نظيف. رائع!";
+        }
+
+        // الرسم البياني للإتقان
+        let chart;
+        function updateChart() {
+            const ctx = document.getElementById('masteryChart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(state.mastery),
+                    datasets: [{
+                        label: 'مستوى الإتقان %',
+                        data: Object.values(state.mastery),
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: { scales: { r: { min: 0, max: 100 } } }
+            });
+        }
+
+        // بوابة المعلم
+        function checkPass() {
+            if(document.getElementById('pass').value === TEACHER_CODE) {
+                document.getElementById('teacher-lock').classList.add('hidden');
+                document.getElementById('teacher-panel').classList.remove('hidden');
+            } else { alert("خطأ في الرمز!"); }
+        }
+
+        // المؤقت
+        let tInterval;
+        function toggleTimer() {
+            if(tInterval) { clearInterval(tInterval); tInterval = null; return; }
+            let s = 1500;
+            tInterval = setInterval(() => {
+                s--;
+                let m = Math.floor(s/60);
+                let sc = s%60;
+                document.getElementById('timer').innerText = `${m}:${sc<10?'0'+sc:sc}`;
+                if(s<=0) clearInterval(tInterval);
+            }, 1000);
+        }
+
+        function resetTimer() { clearInterval(tInterval); document.getElementById('timer').innerText="25:00"; }
+        function changeTheme(v) { document.body.setAttribute('data-theme', v); }
+        function changeLang(l) { document.documentElement.dir = l==='ar'?'rtl':'ltr'; }
+        function addCustomTask() {
+            const t = document.getElementById('t-title').value;
+            const d = document.getElementById('t-date').value;
+            if(t && d) {
+                state.tasks.push({title:t, date:d, subject:"ذاتي"});
+                localStorage.setItem('ss_state', JSON.stringify(state));
+                render(); alert("تمت الإضافة!");
+            }
+        }
+
+        // التشغيل الأولي
+        render();
+    </script>
+</body>
+    </html>
